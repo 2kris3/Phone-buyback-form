@@ -1,1 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Buyback Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .form-container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .device-form {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            position: relative;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button.remove {
+            background-color: #f44336;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            margin: 0;
+            padding: 5px 10px;
+        }
+        .summary {
+            margin-top: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <form action="https://formsubmit.co/YOUR-ACTUAL-EMAIL@EXAMPLE.COM" method="POST">
+    
+    <h1>Phone Buyback Form</h1>
+    <p>Please fill out the details for each phone you wish to sell. You can add as many devices as needed.</p>
+    
+    <div class="form-container">
+        <h2>Your Information</h2>
+        <div class="form-group">
+            <label for="name">Your Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" name="phone">
+        </div>
+        
+        <h2>Phone Details</h2>
+        <div id="devices-container">
+            <!-- Initial device form -->
+            <div class="device-form">
+                <div class="form-group">
+                    <label for="device-name-0">Device Name:</label>
+                    <input type="text" id="device-name-0" name="device-name[]" placeholder="e.g. iPhone 13 Pro, Samsung Galaxy S21" required>
+                </div>
+                <div class="form-group">
+                    <label for="carrier-0">Carrier:</label>
+                    <select id="carrier-0" name="carrier[]" required>
+                        <option value="">Select Carrier</option>
+                        <option value="AT&T">AT&T</option>
+                        <option value="Verizon">Verizon</option>
+                        <option value="T-Mobile">T-Mobile</option>
+                        <option value="Sprint">Sprint</option>
+                        <option value="Unlocked">Unlocked</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="imei-0">IMEI Number:</label>
+                    <input type="text" id="imei-0" name="imei[]" placeholder="15-17 digit IMEI number" required>
+                </div>
+                <div class="form-group">
+                    <label for="issues-0">Issues/Condition:</label>
+                    <textarea id="issues-0" name="issues[]" rows="3" placeholder="Describe any issues, damage, or the general condition of the device"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="price-0">Asking Price ($):</label>
+                    <input type="number" id="price-0" name="price[]" min="0" step="0.01" placeholder="Your asking price" required>
+                </div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button type="button" id="add-device">Add Another Device</button>
+            <button type="submit">Submit All Devices</button>
+        </div>
+    </div>
+    
+    <div class="summary" id="summary-section" style="display: none;">
+        <h2>Summary of Devices</h2>
+        <table id="summary-table">
+            <thead>
+                <tr>
+                    <th>Device Name</th>
+                    <th>Carrier</th>
+                    <th>IMEI</th>
+                    <th>Issues</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody id="summary-body">
+                <!-- Summary rows will be inserted here -->
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" style="text-align: right;"><strong>Total:</strong></td>
+                    <td id="total-price">$0.00</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 
+    <script>
+        let deviceCount = 1;
+        
+        document.getElementById('add-device').addEventListener('click', function() {
+            const devicesContainer = document.getElementById('devices-container');
+            const newDevice = document.createElement('div');
+            newDevice.className = 'device-form';
+            
+            newDevice.innerHTML = `
+                <button type="button" class="remove">Remove</button>
+                <div class="form-group">
+                    <label for="device-name-${deviceCount}">Device Name:</label>
+                    <input type="text" id="device-name-${deviceCount}" name="device-name[]" placeholder="e.g. iPhone 13 Pro, Samsung Galaxy S21" required>
+                </div>
+                <div class="form-group">
+                    <label for="carrier-${deviceCount}">Carrier:</label>
+                    <select id="carrier-${deviceCount}" name="carrier[]" required>
+                        <option value="">Select Carrier</option>
+                        <option value="AT&T">AT&T</option>
+                        <option value="Verizon">Verizon</option>
+                        <option value="T-Mobile">T-Mobile</option>
+                        <option value="Sprint">Sprint</option>
+                        <option value="Unlocked">Unlocked</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="imei-${deviceCount}">IMEI Number:</label>
+                    <input type="text" id="imei-${deviceCount}" name="imei[]" placeholder="15-17 digit IMEI number" required>
+                </div>
+                <div class="form-group">
+                    <label for="issues-${deviceCount}">Issues/Condition:</label>
+                    <textarea id="issues-${deviceCount}" name="issues[]" rows="3" placeholder="Describe any issues, damage, or the general condition of the device"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="price-${deviceCount}">Asking Price ($):</label>
+                    <input type="number" id="price-${deviceCount}" name="price[]" min="0" step="0.01" placeholder="Your asking price" required>
+                </div>
+            `;
+            
+            devicesContainer.appendChild(newDevice);
+            deviceCount++;
+            
+            // Add event listener to the remove button
+            newDevice.querySelector('.remove').addEventListener('click', function() {
+                devicesContainer.removeChild(newDevice);
+            });
+        });
+        
+        // Show summary before form submission
+        document.querySelector('form').addEventListener('submit', function(event) {
+            // Prevent the form from submitting immediately
+            event.preventDefault();
+            
+            // Collect all the form data
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            
+            if (!name || !email) {
+                alert('Please fill in your name and email before submitting.');
+                return;
+            }
+            
+            const devices = [];
+            const deviceNames = document.querySelectorAll('input[name="device-name[]"]');
+            const carriers = document.querySelectorAll('select[name="carrier[]"]');
+            const imeis = document.querySelectorAll('input[name="imei[]"]');
+            const issues = document.querySelectorAll('textarea[name="issues[]"]');
+            const prices = document.querySelectorAll('input[name="price[]"]');
+            
+            let isValid = true;
+            
+            for (let i = 0; i < deviceNames.length; i++) {
+                const deviceName = deviceNames[i].value;
+                const carrier = carriers[i].value;
+                const imei = imeis[i].value;
+                const issue = issues[i].value;
+                const price = prices[i].value;
+                
+                if (!deviceName || !carrier || !imei || !price) {
+                    isValid = false;
+                    break;
+                }
+                
+                devices.push({
+                    deviceName,
+                    carrier,
+                    imei,
+                    issue,
+                    price: parseFloat(price)
+                });
+            }
+            
+            if (!isValid) {
+                alert('Please fill in all required fields for each device.');
+                return;
+            }
+            
+            if (devices.length === 0) {
+                alert('Please add at least one device to submit.');
+                return;
+            }
+            
+            // Display the summary table
+            displaySummary(devices);
+            
+            // Submit form after 3 seconds
+            setTimeout(() => {
+                this.submit();
+            }, 3000);
+        });
+        
+        function displaySummary(devices) {
+            const summarySection = document.getElementById('summary-section');
+            const summaryBody = document.getElementById('summary-body');
+            const totalPrice = document.getElementById('total-price');
+            
+            // Clear existing rows
+            summaryBody.innerHTML = '';
+            
+            // Add each device to the summary table
+            let total = 0;
+            devices.forEach(device => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${device.deviceName}</td>
+                    <td>${device.carrier}</td>
+                    <td>${device.imei}</td>
+                    <td>${device.issue || 'None'}</td>
+                    <td>$${device.price.toFixed(2)}</td>
+                `;
+                summaryBody.appendChild(row);
+                total += device.price;
+            });
+            
+            // Update the total price
+            totalPrice.textContent = `$${total.toFixed(2)}`;
+            
+            // Show the summary section
+            summarySection.style.display = 'block';
+            
+            // Scroll to summary
+            summarySection.scrollIntoView({behavior: 'smooth'});
+        }
+    </script>
+    
+    </form>
+</body>
+</html>
